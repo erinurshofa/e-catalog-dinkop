@@ -33,6 +33,16 @@ class DefaultController extends Controller
      */
     public function actionIndex()
     {
-        return $this->render('index');
+        $profile = \common\models\UmkmProfile::findOne(['user_id' => \Yii::$app->user->id]);
+        $totalProducts = 0;
+        
+        if ($profile) {
+            $totalProducts = \common\models\Products::find()->where(['umkm_profile_id' => $profile->id])->count();
+        }
+
+        return $this->render('index', [
+            'profile' => $profile,
+            'totalProducts' => $totalProducts,
+        ]);
     }
 }

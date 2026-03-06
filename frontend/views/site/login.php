@@ -8,6 +8,20 @@ use yii\bootstrap5\Html;
 use yii\bootstrap5\ActiveForm;
 
 $this->title = 'Masuk - SemarangpreneurUP';
+
+$this->registerCss("
+    .password-toggle {
+        cursor: pointer;
+        color: #6c757d;
+        transition: color 0.2s;
+    }
+    .password-toggle:hover {
+        color: #343a40;
+    }
+    .password-input:focus {
+        box-shadow: none;
+    }
+");
 ?>
 <div class="site-login py-5" style="background-color: var(--bg-light); min-height: 80vh; display: flex; align-items: center;">
     <div class="container">
@@ -37,8 +51,13 @@ $this->title = 'Masuk - SemarangpreneurUP';
 
                             <div class="mb-3">
                                 <?= $form->field($model, 'password', [
-                                    'inputOptions' => ['class' => 'form-control form-control-lg bg-light border-0', 'placeholder' => '••••••••']
-                                ])->passwordInput()->label('Kata Sandi', ['class' => 'fw-semibold text-dark mb-1']) ?>
+                                    'template' => "{label}\n<div class=\"input-group\">{input}\n<span class=\"input-group-text password-toggle bg-light border-0\" id=\"togglePassword\"><i class=\"fa-solid fa-eye\" id=\"toggleIcon\"></i></span></div>\n{error}",
+                                    'labelOptions' => ['class' => 'fw-semibold text-dark mb-1']
+                                ])->passwordInput([
+                                    'class' => 'form-control form-control-lg bg-light border-0 password-input',
+                                    'placeholder' => '••••••••',
+                                    'id' => 'loginform-password'
+                                ])->label('Kata Sandi') ?>
                             </div>
 
                             <div class="d-flex justify-content-between align-items-center mb-4">
@@ -69,3 +88,21 @@ $this->title = 'Masuk - SemarangpreneurUP';
         
     </div>
 </div>
+<?php
+$this->registerJs("
+    document.getElementById('togglePassword').addEventListener('click', function (e) {
+        const passwordInput = document.getElementById('loginform-password');
+        const icon = document.getElementById('toggleIcon');
+        
+        if (passwordInput.type === 'password') {
+            passwordInput.type = 'text';
+            icon.classList.remove('fa-eye');
+            icon.classList.add('fa-eye-slash');
+        } else {
+            passwordInput.type = 'password';
+            icon.classList.remove('fa-eye-slash');
+            icon.classList.add('fa-eye');
+        }
+    });
+");
+?>

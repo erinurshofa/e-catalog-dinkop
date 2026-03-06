@@ -1,14 +1,16 @@
 <?php
 
+use common\models\Categories;
 use yii\helpers\Html;
 use yii\helpers\Url;
+use yii\grid\ActionColumn;
 use yii\grid\GridView;
 
 /** @var yii\web\View $this */
-/** @var common\models\UmkmProfileSearch $searchModel */
+/** @var common\models\CategoriesSearch $searchModel */
 /** @var yii\data\ActiveDataProvider $dataProvider */
 
-$this->title = 'Verifikasi Akun UMKM';
+$this->title = 'Kategori Master';
 $this->params['breadcrumbs'][] = $this->title;
 
 // Inject premium styling
@@ -39,22 +41,17 @@ $this->registerCss("
         border-bottom: 1px solid #f1f5f9;
         background-color: white;
     }
-    .badge-pending {
-        background-color: #fef3c7;
-        color: #d97706;
-        padding: 0.35rem 0.6rem;
-        border-radius: 9999px;
-        font-weight: 600;
-        font-size: 0.75rem;
-    }
 ");
 ?>
-<div class="umkm-profile-index">
+<div class="categories-index">
 
     <div class="d-flex justify-content-between align-items-end mb-4">
         <div>
-            <h3 class="mb-1 fw-bold text-dark"><i class="fa-solid fa-user-clock text-warning me-2"></i> UMKM Menunggu Verifikasi</h3>
-            <p class="text-muted mb-0">Daftar pendaftaran UMKM baru yang perlu ditinjau sebelum dapat memposting produk.</p>
+            <h3 class="mb-1 fw-bold text-dark"><i class="fa-solid fa-tags text-primary me-2"></i> Kategori Produk Master</h3>
+            <p class="text-muted mb-0">Kelola daftar kategori yang dapat dipilih oleh UMKM.</p>
+        </div>
+        <div>
+            <?= Html::a('<i class="fa-solid fa-plus me-1"></i> Tambah Kategori', ['create'], ['class' => 'btn btn-primary rounded-pill px-4 shadow-sm fw-bold']) ?>
         </div>
     </div>
 
@@ -63,7 +60,7 @@ $this->registerCss("
             <div class="table-responsive">
                 <?= GridView::widget([
                     'dataProvider' => $dataProvider,
-                    'filterModel' => null, // Sembunyikan filter default untuk tampilan yang lebih bersih jika belum ada form pencarian terpisah
+                    'filterModel' => null, // simple ui for now
                     'layout' => "{items}\n<div class='p-3 border-top d-flex justify-content-between align-items-center'>{summary}\n{pager}</div>",
                     'tableOptions' => ['class' => 'table table-hover mb-0 w-100'],
                     'pager' => [
@@ -74,37 +71,32 @@ $this->registerCss("
                         ['class' => 'yii\grid\SerialColumn'],
 
                         [
-                            'attribute' => 'nama_usaha',
+                            'attribute' => 'name',
+                            'label' => 'Nama Kategori',
                             'format' => 'raw',
-                            'value' => function ($model) {
-                                return '<div class="fw-bold text-dark">' . Html::encode($model->nama_usaha) . '</div>' .
-                                       '<div class="small text-muted">' . Html::encode($model->user->username ?? '') . '</div>';
-                            },
+                            'value' => function($model) {
+                                return '<div class="fw-bold text-dark">' . Html::encode($model->name) . '</div>' . 
+                                       '<div class="small text-muted">' . Html::encode($model->slug) . '</div>';
+                            }
                         ],
-                        'nik',
-                        [
-                            'attribute' => 'created_at',
-                            'label' => 'Tanggal Daftar',
-                            'value' => function ($model) {
-                                return Yii::$app->formatter->asDatetime($model->created_at, 'php:d M Y, H:i');
-                            },
-                        ],
-                        [
-                            'label' => 'Status',
-                            'format' => 'raw',
-                            'value' => function () {
-                                return '<span class="badge-pending"><i class="fa-solid fa-clock me-1"></i> Menunggu</span>';
-                            },
-                        ],
+                        'type',
                         [
                             'class' => 'yii\grid\ActionColumn',
                             'header' => 'Aksi',
-                            'template' => '{verify}',
+                            'template' => '<div class="btn-group">{update} {delete}</div>',
                             'buttons' => [
-                                'verify' => function ($url, $model, $key) {
-                                    return Html::a('<i class="fa-solid fa-magnifying-glass me-1"></i> Review', ['verify', 'id' => $model->id], [
-                                        'class' => 'btn btn-sm btn-primary rounded-pill px-3 shadow-sm',
-                                        'title' => 'Review & Verifikasi',
+                                'update' => function ($url, $model, $key) {
+                                    return Html::a('<i class="fa-solid fa-pen"></i> Edit', ['update', 'id' => $model->id], [
+                                        'class' => 'btn btn-sm btn-outline-primary',
+                                    ]);
+                                },
+                                'delete' => function ($url, $model, $key) {
+                                    return Html::a('<i class="fa-solid fa-trash"></i> Hapus', ['delete', 'id' => $model->id], [
+                                        'class' => 'btn btn-sm btn-outline-danger',
+                                        'data' => [
+                                            'confirm' => 'Yakin ingin menghapus kategori ini?',
+                                            'method' => 'post',
+                                        ],
                                     ]);
                                 },
                             ],
@@ -114,4 +106,5 @@ $this->registerCss("
             </div>
         </div>
     </div>
+
 </div>

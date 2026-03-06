@@ -25,6 +25,8 @@ class UmkmLegalitas extends \yii\db\ActiveRecord
 {
 
 
+    public $file_upload;
+
     /**
      * {@inheritdoc}
      */
@@ -47,6 +49,7 @@ class UmkmLegalitas extends \yii\db\ActiveRecord
             [['catatan_admin'], 'string'],
             [['jenis_dokumen', 'nomor_dokumen'], 'string', 'max' => 100],
             [['file_path'], 'string', 'max' => 255],
+            [['file_upload'], 'file', 'skipOnEmpty' => true, 'extensions' => 'png, jpg, jpeg, pdf', 'maxSize' => 1024 * 1024 * 3], // Max 3MB
             [['umkm_profile_id'], 'exist', 'skipOnError' => true, 'targetClass' => UmkmProfile::class, 'targetAttribute' => ['umkm_profile_id' => 'id']],
         ];
     }

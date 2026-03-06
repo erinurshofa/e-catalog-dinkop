@@ -75,7 +75,26 @@ class SiteController extends Controller
      */
     public function actionIndex()
     {
-        return $this->render('index');
+        $featuredProducts = \common\models\Products::find()
+            ->with(['productImages', 'umkmProfile', 'category'])
+            ->where(['status' => 1])
+            ->orderBy(['is_featured' => SORT_DESC, 'created_at' => SORT_DESC])
+            ->limit(4)
+            ->all();
+
+        return $this->render('index', [
+            'featuredProducts' => $featuredProducts,
+        ]);
+    }
+
+    /**
+     * Displays informasi UMKM page.
+     *
+     * @return mixed
+     */
+    public function actionInformasi()
+    {
+        return $this->render('informasi');
     }
 
     /**

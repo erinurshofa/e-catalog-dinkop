@@ -23,7 +23,7 @@ use Yii;
  * @property int $updated_at
  *
  * @property Categories $category
- * @property ProductImages[] $productImages
+ * @property ProductImage[] $productImages
  * @property UmkmProfile $umkmProfile
  */
 class Products extends \yii\db\ActiveRecord
@@ -37,6 +37,8 @@ class Products extends \yii\db\ActiveRecord
     {
         return 'products';
     }
+
+    public $imageFiles;
 
     /**
      * {@inheritdoc}
@@ -55,6 +57,7 @@ class Products extends \yii\db\ActiveRecord
             [['slug'], 'string', 'max' => 255],
             [['unit'], 'string', 'max' => 50],
             [['slug'], 'unique'],
+            [['imageFiles'], 'file', 'skipOnEmpty' => true, 'extensions' => 'png, jpg, jpeg, webp', 'maxFiles' => 5, 'maxSize' => 1024 * 1024 * 2], // max 2MB per file
             [['category_id'], 'exist', 'skipOnError' => true, 'targetClass' => Categories::class, 'targetAttribute' => ['category_id' => 'id']],
             [['umkm_profile_id'], 'exist', 'skipOnError' => true, 'targetClass' => UmkmProfile::class, 'targetAttribute' => ['umkm_profile_id' => 'id']],
         ];
@@ -100,7 +103,7 @@ class Products extends \yii\db\ActiveRecord
      */
     public function getProductImages()
     {
-        return $this->hasMany(ProductImages::class, ['product_id' => 'id']);
+        return $this->hasMany(ProductImage::class, ['product_id' => 'id']);
     }
 
     /**

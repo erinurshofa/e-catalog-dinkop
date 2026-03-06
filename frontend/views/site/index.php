@@ -1,8 +1,10 @@
 <?php
 
 /** @var yii\web\View $this */
+/** @var common\models\Products[] $featuredProducts */
 
 use yii\bootstrap5\Html;
+use yii\helpers\Url;
 
 $this->title = 'SemarangpreneurUP - Katalog Produk UMKM Kota Semarang';
 ?>
@@ -22,12 +24,14 @@ $this->title = 'SemarangpreneurUP - Katalog Produk UMKM Kota Semarang';
                         Segera hadir produk-produk unggulan karya asli UMKM Kota Semarang. Dukung produk lokal, bangkitkan ekonomi kita.
                     </p>
                     
-                    <div class="search-box-hero rounded-pill bg-white d-flex overflow-hidden mt-4">
-                        <input type="text" class="form-control border-0 shadow-none w-100" placeholder="Cari produk impian Anda di sini..." aria-label="Search">
-                        <button class="btn px-4 bg-warning" type="button">
+                    <form action="<?= Url::to(['/catalog/default/index']) ?>" method="get" class="search-box-hero rounded-pill bg-white d-flex overflow-hidden mt-4">
+                        <!-- Hidden input to preserve route without pretty URLs -->
+                        <input type="hidden" name="r" value="catalog/default/index">
+                        <input type="text" name="q" class="form-control border-0 shadow-none w-100" placeholder="Cari produk impian Anda di sini..." aria-label="Search">
+                        <button type="submit" class="btn px-4 bg-warning">
                             <i class="fa-solid fa-search"></i> Cari
                         </button>
-                    </div>
+                    </form>
                 </div>
                 <div class="col-lg-5 d-none d-lg-block position-relative z-1 text-center">
                     <!-- Foto Walikota dan Wakil Walikota Semarang -->
@@ -77,84 +81,60 @@ $this->title = 'SemarangpreneurUP - Katalog Produk UMKM Kota Semarang';
                 <h2 class="section-title mb-0">Produk Unggulan</h2>
                 <p class="text-muted mt-2">Koleksi kurasi terbaik dari SemarangpreneurUP</p>
             </div>
-            <a href="#" class="btn btn-outline-dark rounded-pill px-4">Lihat Semua <i class="fa-solid fa-arrow-right ms-2"></i></a>
+            <a href="<?= Url::to(['/catalog/default/index']) ?>" class="btn btn-outline-dark rounded-pill px-4">Lihat Semua <i class="fa-solid fa-arrow-right ms-2"></i></a>
         </div>
 
         <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4 mt-2">
             
-            <!-- Dummy Product 1 -->
-            <div class="col">
-                <div class="product-card">
-                    <span class="badge-featured"><i class="fa-solid fa-star me-1"></i> Unggulan</span>
-                    <div class="product-img-wrap">
-                        <img src="<?= Yii::getAlias('@web') ?>/images/lumpia_semarang_sample_1772688185608.png" alt="Lumpia">
-                    </div>
-                    <div class="product-body">
-                        <div class="product-category">Kuliner</div>
-                        <a href="#" class="product-title">Lumpia Semarang Asli Mbak Lien Premium Box (Isi 10)</a>
-                        <div class="product-price">Rp 150.000</div>
-                        <div class="product-umkm d-flex justify-content-between align-items-center">
-                            <span><i class="fa-solid fa-store text-warning me-1"></i> Lumpia Mbak Lien</span>
-                            <span class="badge bg-success bg-opacity-10 text-success"><i class="fa-solid fa-check-circle"></i> Terverifikasi</span>
+            <?php if (!empty($featuredProducts)): ?>
+                <?php foreach ($featuredProducts as $product): ?>
+                    <?php 
+                        $primaryImage = 'https://via.placeholder.com/600x600?text=No+Image';
+                        if (!empty($product->productImages)) {
+                            foreach ($product->productImages as $img) {
+                                if ($img->is_primary) {
+                                    $primaryImage = $img->image_path;
+                                    break;
+                                }
+                            }
+                            if ($primaryImage === 'https://via.placeholder.com/600x600?text=No+Image') {
+                                $primaryImage = $product->productImages[0]->image_path;
+                            }
+                        }
+                    ?>
+                    <div class="col">
+                        <div class="product-card">
+                            <?php if ($product->is_featured): ?>
+                                <span class="badge-featured"><i class="fa-solid fa-star me-1"></i> Unggulan</span>
+                            <?php endif; ?>
+                            <div class="product-img-wrap" style="position: relative; overflow: hidden; padding-top: 100%;">
+                                <img src="<?= Html::encode($primaryImage) ?>" alt="<?= Html::encode($product->name) ?>" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover;">
+                            </div>
+                            <div class="product-body" style="padding: 1.25rem;">
+                                <div class="product-category" style="font-size: 0.8rem; color: #888; text-transform: uppercase; font-weight: 600; margin-bottom: 0.4rem;">
+                                    <?= $product->category ? Html::encode($product->category->name) : 'Lainnya' ?>
+                                </div>
+                                <a href="<?= Url::to(['/catalog/default/detail', 'slug' => $product->slug]) ?>" class="product-title" style="font-weight: 700; font-size: 1.05rem; line-height: 1.4; color: #1a1a1a; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; text-decoration: none; margin-bottom: 0.8rem;">
+                                    <?= Html::encode($product->name) ?>
+                                </a>
+                                <div class="product-price" style="font-weight: 800; font-size: 1.2rem; color: #4a90e2; margin-bottom: 0.8rem;">
+                                    Rp <?= number_format($product->price, 0, ',', '.') ?>
+                                </div>
+                                <div class="product-umkm d-flex justify-content-between align-items-center" style="font-size: 0.85rem;">
+                                    <span class="text-truncate" style="max-width: 60%;"><i class="fa-solid fa-store text-warning me-1"></i> <?= $product->umkmProfile ? Html::encode($product->umkmProfile->nama_usaha) : '-' ?></span>
+                                    <?php if ($product->umkmProfile && $product->umkmProfile->status_verifikasi == 1): ?>
+                                        <span class="badge bg-success bg-opacity-10 text-success"><i class="fa-solid fa-check-circle"></i> Terverifikasi</span>
+                                    <?php endif; ?>
+                                </div>
+                            </div>
                         </div>
                     </div>
+                <?php endforeach; ?>
+            <?php else: ?>
+                <div class="col-12 text-center py-5">
+                    <p class="text-muted">Belum ada produk unggulan yang tersedia saat ini.</p>
                 </div>
-            </div>
-
-            <!-- Dummy Product 2 -->
-            <div class="col">
-                <div class="product-card">
-                    <div class="product-img-wrap">
-                        <img src="<?= Yii::getAlias('@web') ?>/images/batik_semarang_sample_1772688166356.png" alt="Batik">
-                    </div>
-                    <div class="product-body">
-                        <div class="product-category">Fashion</div>
-                        <a href="#" class="product-title">Kemeja Batik Tulis Khas Semarangan Motif Tugu Muda</a>
-                        <div class="product-price">Rp 350.000</div>
-                        <div class="product-umkm d-flex justify-content-between align-items-center">
-                            <span><i class="fa-solid fa-store text-warning me-1"></i> Batik Jaya</span>
-                            <span class="badge bg-success bg-opacity-10 text-success"><i class="fa-solid fa-check-circle"></i> Terverifikasi</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Dummy Product 3 -->
-            <div class="col">
-                <div class="product-card">
-                    <span class="badge-featured"><i class="fa-solid fa-star me-1"></i> Unggulan</span>
-                    <div class="product-img-wrap">
-                        <img src="<?= Yii::getAlias('@web') ?>/images/bandeng_presto_sample_1772688291160.png" alt="Bandeng">
-                    </div>
-                    <div class="product-body">
-                        <div class="product-category">Kuliner</div>
-                        <a href="#" class="product-title">Bandeng Presto Juwana Super Lembut Dus Kecil</a>
-                        <div class="product-price">Rp 75.000</div>
-                        <div class="product-umkm d-flex justify-content-between align-items-center">
-                            <span><i class="fa-solid fa-store text-warning me-1"></i> Bandeng Makmur</span>
-                            <span class="badge bg-success bg-opacity-10 text-success"><i class="fa-solid fa-check-circle"></i> Terverifikasi</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Dummy Product 4 -->
-            <div class="col">
-                <div class="product-card">
-                    <div class="product-img-wrap">
-                        <img src="<?= Yii::getAlias('@web') ?>/images/kerajinan_jati_sample_1772688663853.png" alt="Kerajinan">
-                    </div>
-                    <div class="product-body">
-                        <div class="product-category">Kriya</div>
-                        <a href="#" class="product-title">Hiasan Dinding Kayu Jati Motif Kota Lama Semarang</a>
-                        <div class="product-price">Rp 220.000</div>
-                        <div class="product-umkm d-flex justify-content-between align-items-center">
-                            <span><i class="fa-solid fa-store text-warning me-1"></i> Kriya Jati</span>
-                            <span class="badge bg-success bg-opacity-10 text-success"><i class="fa-solid fa-check-circle"></i> Terverifikasi</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            <?php endif; ?>
             
         </div>
     </div>

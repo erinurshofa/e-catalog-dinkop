@@ -40,6 +40,23 @@ class ProductController extends Controller
         return UmkmProfile::findOne(['user_id' => Yii::$app->user->id]);
     }
 
+    public function beforeAction($action)
+    {
+        if (!parent::beforeAction($action)) {
+            return false;
+        }
+
+        $profile = $this->getOwnProfile();
+        // Hanya izinkan akses jika Profil ada dan Status Verifikasi sudah disetujui (1)
+        if (!$profile || $profile->status_verifikasi != 1) {
+            Yii::$app->session->setFlash('error', 'Akses ditolak. Fitur pengelolaan produk baru terbuka setelah akun UMKM Anda disetujui oleh Admin DINKOP.');
+            $this->redirect(['/member/default/index']);
+            return false;
+        }
+
+        return true;
+    }
+
     public function actionIndex()
     {
         $profile = $this->getOwnProfile();
@@ -69,6 +86,8 @@ class ProductController extends Controller
 
         if ($model->load(Yii::$app->request->post())) {
             
+            $model->imageFiles = \yii\web\UploadedFile::getInstances($model, 'imageFiles');
+
             // Cek jika UMKM belum diverifikasi oleh admin
             if ($profile->status_verifikasi != 1) { // 1 = Disetujui
                 Yii::$app->session->setFlash('warning', 'Toko Anda belum diverifikasi oleh Admin DINKOP. Produk Anda akan otomatis berstatus Draf.');
@@ -83,6 +102,29 @@ class ProductController extends Controller
             $model->updated_at = time();
 
             if ($model->save()) {
+                
+                // Upload logic
+                if ($model->imageFiles) {
+                    $uploadPath = Yii::getAlias('@frontend/web/uploads/products/');
+                    if (!is_dir($uploadPath)) {
+                        \yii\helpers\FileHelper::createDirectory($uploadPath);
+                    }
+
+                    foreach ($model->imageFiles as $index => $file) {
+                        $fileName = $model->slug . '-' . time() . '-' . $index . '.' . $file->extension;
+                        $filePath = $uploadPath . $fileName;
+
+                        if ($file->saveAs($filePath)) {
+                            $productImage = new \common\models\ProductImage();
+                            $productImage->product_id = $model->id;
+                            $productImage->image_path = 'uploads/products/' . $fileName;
+                            $productImage->is_primary = ($index == 0) ? 1 : 0; // Gambar pertama jadi primary
+                            $productImage->created_at = time();
+                            $productImage->save(false);
+                        }
+                    }
+                }
+
                 Yii::$app->session->setFlash('success', 'Produk berhasil ditambahkan ke Etalase!');
                 return $this->redirect(['index']);
             }

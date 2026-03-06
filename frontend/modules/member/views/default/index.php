@@ -1,6 +1,8 @@
 <?php
 
 /** @var yii\web\View $this */
+/** @var common\models\UmkmProfile $profile */
+/** @var int $totalProducts */
 
 $this->title = 'Ringkasan Dasbor';
 ?>
@@ -20,7 +22,7 @@ $this->title = 'Ringkasan Dasbor';
                     </div>
                     <div>
                         <h6 class="text-muted mb-1">Total Produk</h6>
-                        <h3 class="fw-bold mb-0">0</h3>
+                        <h3 class="fw-bold mb-0"><?= $totalProducts ?></h3>
                     </div>
                 </div>
             </div>
@@ -46,7 +48,13 @@ $this->title = 'Ringkasan Dasbor';
                     </div>
                     <div>
                         <h6 class="text-muted mb-1">Status Verifikasi</h6>
-                        <span class="badge bg-warning text-dark"><i class="fa-regular fa-clock me-1"></i> Menunggu Verifikasi Admin</span>
+                        <?php if ($profile && $profile->status_verifikasi == 1): ?>
+                            <span class="badge bg-success"><i class="fa-solid fa-check-circle me-1"></i> Disetujui & Aktif</span>
+                        <?php elseif ($profile && $profile->status_verifikasi == 2): ?>
+                            <span class="badge bg-danger"><i class="fa-solid fa-xmark-circle me-1"></i> Ditolak</span>
+                        <?php else: ?>
+                            <span class="badge bg-warning text-dark"><i class="fa-regular fa-clock me-1"></i> Menunggu Verifikasi Admin</span>
+                        <?php endif; ?>
                     </div>
                 </div>
             </div>
@@ -58,14 +66,25 @@ $this->title = 'Ringkasan Dasbor';
             <h5 class="fw-bold">Langkah Selanjutnya</h5>
         </div>
         <div class="card-body p-4">
+            <?php if (!$profile || $profile->status_verifikasi != 1): ?>
             <div class="alert alert-info border-0 bg-info bg-opacity-10 d-flex align-items-start mb-0">
                 <i class="fa-solid fa-info-circle fa-2x text-info me-3 mt-1"></i>
                 <div>
                     <h6 class="fw-bold text-info-emphasis">Lengkapi Profil dan Dokumen Anda!</h6>
                     <p class="mb-2 text-dark">Agar produk Anda dapat ditampilkan di e-Katalog publik, Anda perlu memverifikasi identitas dan legalitas usaha Anda.</p>
-                    <a href="#" class="btn btn-sm btn-info text-white fw-bold rounded-pill px-3">Lengkapi Sekarang</a>
+                    <a href="<?= \yii\helpers\Url::to(['/member/profile/update']) ?>" class="btn btn-sm btn-info text-white fw-bold rounded-pill px-3">Lengkapi Sekarang</a>
                 </div>
             </div>
+            <?php else: ?>
+            <div class="alert alert-success border-0 bg-success bg-opacity-10 d-flex align-items-start mb-0">
+                <i class="fa-solid fa-check-circle fa-2x text-success me-3 mt-1"></i>
+                <div>
+                    <h6 class="fw-bold text-success-emphasis">Akun Anda Telah Disetujui!</h6>
+                    <p class="mb-2 text-dark">Kini Anda memiliki akses penuh untuk mengelola produk katalog dan mempublikasikannya ke seluruh UMKM Semarang.</p>
+                    <a href="<?= \yii\helpers\Url::to(['/member/product/index']) ?>" class="btn btn-sm btn-success fw-bold rounded-pill px-3">Kelola Katalog Produk</a>
+                </div>
+            </div>
+            <?php endif; ?>
         </div>
     </div>
 

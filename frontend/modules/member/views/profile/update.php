@@ -167,6 +167,7 @@ $(document).ready(function() {
     function updateInputs(lat, lng) {
         $('#input-lat').val(lat.toFixed(7));
         $('#input-lng').val(lng.toFixed(7));
+        $('#gmaps-link').val('https://www.google.com/maps?q=' + lat.toFixed(7) + ',' + lng.toFixed(7));
     }
 
     // Assign default pertama kali kalau kosong

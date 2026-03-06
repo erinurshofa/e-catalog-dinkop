@@ -65,9 +65,10 @@ $this->title = $model->isNewRecord ? 'Tambah Produk Baru' : 'Ubah Produk: ' . $m
                         
                         <hr class="my-4">
                         
-                        <div class="alert alert-secondary border-0 p-3 shadow-none">
-                            <i class="fa-solid fa-info-circle text-muted mb-2"></i>
-                            <p class="small text-muted mb-0">Fitur _Upload Multiple Image_ (Foto Produk) akan dibuka pada tahap iterasi antarmuka berikutnya oleh Admin Sistem.</p>
+                        <div class="mb-3">
+                            <h6 class="text-dark fw-bold mb-3 pb-2"><i class="fa-regular fa-images text-primary me-2"></i> Foto Produk</h6>
+                            <?= $form->field($model, 'imageFiles[]')->fileInput(['multiple' => true, 'accept' => 'image/*', 'class' => 'form-control'])->label(false) ?>
+                            <div class="form-text mt-2"><i class="fa-solid fa-info-circle me-1"></i> Unggah hingga 5 foto (Format: JPG, PNG, WebP). Maksimal 2MB per foto.</div>
                         </div>
                     </div>
                 </div>

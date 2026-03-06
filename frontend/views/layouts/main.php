@@ -39,7 +39,7 @@ AppAsset::register($this);
     $menuItems = [
         ['label' => 'Beranda', 'url' => ['/site/index']],
         ['label' => 'Katalog', 'url' => ['/catalog/default/index']],
-        ['label' => 'Informasi', 'url' => ['/site/about']],
+        ['label' => 'Informasi', 'url' => ['/site/informasi']],
     ];
     
     if (Yii::$app->user->isGuest) {
@@ -92,9 +92,9 @@ AppAsset::register($this);
             </div>
             <div class="col-lg-2 col-md-4 mb-4">
                 <h6 class="fw-bold mb-3">Tautan</h6>
-                <a href="#" class="footer-link">Beranda</a>
-                <a href="#" class="footer-link">Katalog Produk</a>
-                <a href="#" class="footer-link">Informasi Pendaftaran</a>
+                <a href="<?= \yii\helpers\Url::to(['/site/index']) ?>" class="footer-link">Beranda</a>
+                <a href="<?= \yii\helpers\Url::to(['/catalog/default/index']) ?>" class="footer-link">Katalog Produk</a>
+                <a href="<?= \yii\helpers\Url::to(['/site/informasi']) ?>" class="footer-link">Informasi Pendaftaran</a>
             </div>
             <div class="col-lg-3 col-md-4 mb-4">
                 <h6 class="fw-bold mb-3">Kontak DINKOP</h6>
